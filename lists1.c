@@ -8,12 +8,14 @@
  */
 size_t list_len(const list_t *h)
 {
-	size_t count = 0;
+	size_t i = 0;
 
-	for (; h; h = h->next)
-		count++;
-
-	return count;
+	while (h)
+	{
+		h = h->next;
+		i++;
+	}
+	return (i);
 }
 
 /**
@@ -24,35 +26,34 @@ size_t list_len(const list_t *h)
  */
 char **list_to_strings(list_t *head)
 {
-	size_t len = list_len(head);
-	char **strs = NULL;
-	char **temp = NULL;
+	list_t *node = head;
+	size_t i = list_len(head), j;
+	char **strs;
+	char *str;
 
-	if (!head || !len)
-		return NULL;
-
-	strs = malloc(sizeof(char *) * (len + 1));
+	if (!head || !i)
+		return (NULL);
+	strs = malloc(sizeof(char *) * (i + 1));
 	if (!strs)
-		return NULL;
-
-	temp = strs;
-	while (head)
+		return (NULL);
+	for (i = 0; node; node = node->next, i++)
 	{
-		*temp = _strcpy(malloc(_strlen(head->str) + 1), head->str);
-		if (!*temp)
+		str = malloc(_strlen(node->str) + 1);
+		if (!str)
 		{
-			while (temp-- != strs)
-				free(*temp);
+			for (j = 0; j < i; j++)
+				free(strs[j]);
 			free(strs);
-			return NULL;
+			return (NULL);
 		}
-		temp++;
-		head = head->next;
-	}
-	*temp = NULL;
 
-	return strs;
+		str = _strcpy(str, node->str);
+		strs[i] = str;
+	}
+	strs[i] = NULL;
+	return (strs);
 }
+
 
 /**
  * print_list - prints all elements of a list_t linked list
@@ -62,18 +63,19 @@ char **list_to_strings(list_t *head)
  */
 size_t print_list(const list_t *h)
 {
-	size_t count = 0;
+	size_t i = 0;
 
-	for (; h; h = h->next, count++)
+	while (h)
 	{
 		_puts(convert_number(h->num, 10, 0));
 		_putchar(':');
 		_putchar(' ');
 		_puts(h->str ? h->str : "(nil)");
 		_puts("\n");
+		h = h->next;
+		i++;
 	}
-
-	return count;
+	return (i);
 }
 
 /**
@@ -86,14 +88,16 @@ size_t print_list(const list_t *h)
  */
 list_t *node_starts_with(list_t *node, char *prefix, char c)
 {
-	for (; node; node = node->next)
-	{
-		char *p = starts_with(node->str, prefix);
-		if (p && ((c == -1) || (*p == c)))
-			return node;
-	}
+	char *p = NULL;
 
-	return NULL;
+	while (node)
+	{
+		p = starts_with(node->str, prefix);
+		if (p && ((c == -1) || (*p == c)))
+			return (node);
+		node = node->next;
+	}
+	return (NULL);
 }
 
 /**
@@ -105,13 +109,14 @@ list_t *node_starts_with(list_t *node, char *prefix, char c)
  */
 ssize_t get_node_index(list_t *head, list_t *node)
 {
-	size_t index = 0;
+	size_t i = 0;
 
-	for (; head; head = head->next, index++)
+	while (head)
 	{
 		if (head == node)
-			return index;
+			return (i);
+		head = head->next;
+		i++;
 	}
-
-	return -1;
+	return (-1);
 }
